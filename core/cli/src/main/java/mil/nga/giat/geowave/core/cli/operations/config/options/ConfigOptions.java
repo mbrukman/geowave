@@ -91,15 +91,48 @@ public class ConfigOptions
 	public static File getDefaultPropertyFile() {
 		final File defaultPath = getDefaultPropertyPath();
 		final String version = VersionUtils.getVersion();
-		final String configFile = String.format(
-				"%s%s%s%s%s",
-				defaultPath.getAbsolutePath(),
-				File.separator,
-				(version != null ? version : "unknownversion"),
-				"-",
-				GEOWAVE_CACHE_FILE);
-		return new File(
-				configFile);
+		
+		if (version != null) {
+			final String configFile = String.format(
+					"%s%s%s%s%s",
+					defaultPath.getAbsolutePath(),
+					File.separator,
+					version,
+					"-",
+					GEOWAVE_CACHE_FILE);
+			return new File(
+					configFile);
+		} else {
+			final String[] configFiles = defaultPath.list(
+					new FilenameFilter() {
+
+						@Override
+						public boolean accept(
+								File dir,
+								String name ) {
+							return name.endsWith("-config.properties");
+						}
+					});
+			if (configFiles != null && configFiles.length > 0) {
+				final String configFile = String.format(
+						"%s%s%s",
+						defaultPath.getAbsolutePath(),
+						File.separator,
+						configFiles[0]);
+				return new File(
+						configFile);
+			} else {
+				final String configFile = String.format(
+						"%s%s%s%s%s",
+						defaultPath.getAbsolutePath(),
+						File.separator,
+						"unknownversions",
+						"-",
+						GEOWAVE_CACHE_FILE);
+				return new File(
+						configFile);
+			}
+		}
 	}
 
 	/**
@@ -156,10 +189,45 @@ public class ConfigOptions
 			final File configFile,
 			final String pattern ) {
 
+		final File defaultPath = ConfigOptions.getDefaultPropertyPath();
+		final String[] configFiles = defaultPath.list(
+				new FilenameFilter() {
+
+					@Override
+					public boolean accept(
+							File dir,
+							String name ) {
+						return name.endsWith("-config.properties");
+					}
+				});
+		
 		Pattern p = null;
 		if (pattern != null) {
 			p = Pattern.compile(pattern);
 		}
+		
+		/*if (configFile == null) {
+			final File defaultPath = ConfigOptions.getDefaultPropertyPath();
+			final String[] configFiles = defaultPath.list(
+					new FilenameFilter() {
+
+						@Override
+						public boolean accept(
+								File dir,
+								String name ) {
+							return name.endsWith("-config.properties");
+						}
+					});
+			if (configFiles != null && configFiles.length > 0) {
+				final String firstFile = String.format(
+						"%s%s%s",
+						defaultPath.getAbsolutePath(),
+						File.separator,
+						configFiles[0]);
+				configFile = new File(firstFile);
+			}
+			
+		}*/
 
 		// Load the properties file.
 		final Properties properties = new Properties();
@@ -196,9 +264,9 @@ public class ConfigOptions
 		}
 		catch (final IOException e) {
 			LOGGER.error(
-					"Could not find property cache file: " + configFile,
+					"Could not find property cache file: " + configFile + "--" + configFiles.toString(),
 					e);
-			final String[] configFiles = configFile.getParentFile().list(
+			/*final String[] configFiles = configFile.getParentFile().list(
 					new FilenameFilter() {
 
 						@Override
@@ -221,7 +289,7 @@ public class ConfigOptions
 					}
 				}
 				return properties;
-			}
+			}*/
 			return null;
 		}
 		finally {

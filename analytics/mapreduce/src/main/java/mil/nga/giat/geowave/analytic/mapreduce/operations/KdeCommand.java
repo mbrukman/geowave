@@ -65,7 +65,7 @@ public class KdeCommand extends
 		File configFile = (File) params.getContext().get(
 				ConfigOptions.PROPERTIES_FILE_CONTEXT);
 		
-		if (configFile == null) {
+		/*if (configFile == null) {
 			final File defaultPath = ConfigOptions.getDefaultPropertyPath();
 			final String[] configFiles = defaultPath.list(
 					new FilenameFilter() {
@@ -86,7 +86,7 @@ public class KdeCommand extends
 				configFile = new File(firstFile);
 			}
 			
-		}
+		}*/
 
 		// Attempt to load input store.
 		if (inputStoreOptions == null) {
